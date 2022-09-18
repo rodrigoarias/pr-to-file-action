@@ -22,11 +22,10 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 	console.log('Here we are in a PR, this is what we have:');
 
 	const pr = context.payload.pull_request
-	const changelogFileName = `changes/PR#${pr.number}.json`
+	const changelogFileName = `changes/PR-${pr.number}.json`
 	const title = pr.title
 	const body = pr.body
 	const url = pr.html_url
-	const number = pr.number
 	const owner = context.payload.repository.owner.login
 	const repo = context.payload.repository.name
 
@@ -37,6 +36,7 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 		title: pr.title,
 		message: pr.body,
 		url: pr.html_url,
+		number: pr.number,
 		labels: pr.labels
 	}
 	var contentBase64 = btoa(JSON.stringify(content))
