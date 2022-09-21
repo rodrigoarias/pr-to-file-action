@@ -7,11 +7,11 @@ inputs:
   committer-name:
     description: 'The name of the changelog file committer'
     required: false
-    default: 'PR-to-file-bot'
+    default: 'github-actions[bot]'
   committer-email:
     description: 'The email of the changelog file committer'
     required: false
-    default: 'pr-to-file@bot.com'
+    default: 'github-actions[bot]@users.noreply.github.com'
 runs:
   using: 'node16'
   main: 'index.js'
