@@ -15,11 +15,11 @@ in a json format.
 
 ## `committer-name`
 
-A string with the name that will be used as a committer for the added file. Default: `"PR-to-file-bot"`.
+A string with the name that will be used as a committer for the added file. Default: `"github-actions[bot]"`.
 
 ## `committer-email`
 
-A string with the email that will be used as a committer for the added file. Default: `"pr-to-file@bot.com"`.
+A string with the email that will be used as a committer for the added file. Default: `"github-actions[bot]@users.noreply.github.com"`.
 
 ## Outputs
 This action has no outputs.
