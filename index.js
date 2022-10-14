@@ -43,9 +43,10 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 
 	try {
 		const existingFile = await findFile(octo, owner, repo, pr.head.ref, changelogFileName);
-		console.log("Changelog file already exists. Finishing action.")
+		console.log("Changelog file already exists. Finishing action.");
+		console.log(JSON.stringify(existingFile));
 	} catch (e) {
-		console.log("Changelog file already doesn't exists. I'll create it")
+		console.log("Changelog file already doesn't exists. I'll create it");
 		const blob = await createBlob(octo, owner, repo, contentBase64);
 		const file = await addFile(octo, owner, repo, blob, pr.head.ref, contentBase64, changelogFileName, title, committer);	
 	}
