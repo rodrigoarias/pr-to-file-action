@@ -51,7 +51,7 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 	
 	const existingFile = await findFile(octo, owner, repo, pr.head.ref, changelogFileName);
 	console.log(`file ${JSON.stringify(existingFile)}`);
-	const file = await addFile(octo, owner, repo, 'delete', pr.head.ref, contentBase64, changelogFileName, title, committer);	
+	const file = await addFile(octo, owner, repo, existingFile?.data.sha, pr.head.ref, contentBase64, changelogFileName, title, committer);	
 	
 	/*try {
 		const existingFile = await findFile(octo, owner, repo, pr.head.ref, changelogFileName);
