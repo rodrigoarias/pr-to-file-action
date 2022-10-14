@@ -10,7 +10,6 @@ const main = async (workspace) => {
 		email: core.getInput('committer-email'),
 	}
 
-
 	if(github.context.payload.pull_request && validActivityType(github.context.payload.action)) {
 		createPullRequestChangesFile(octokit, github.context, committer);
 	} else {
@@ -24,8 +23,7 @@ const validActivityType = (type) => {
 }
 
 const createPullRequestChangesFile = async (octo, context, committer) => {
-	console.log('Here we are in a PR, this is what we have:');
-
+	
 	const pr = context.payload.pull_request
 	const changelogFileName = `changes/PR-${pr.number}.json`
 	const title = pr.title
@@ -33,9 +31,6 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 	const url = pr.html_url
 	const owner = context.payload.repository.owner.login
 	const repo = context.payload.repository.name
-
-//	console.log(JSON.stringify(github, null, 4));
-//	console.log(`Owner ${owner}`)
 	
 	const content = {
 		title: pr.title,
@@ -44,24 +39,13 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 		number: pr.number,
 		labels: pr.labels
 	}
-	var contentBase64 = btoa(JSON.stringify(content))
-
-	//const blob = await createBlob(octo, owner, repo, contentBase64);
-	//const file = await addFile(octo, owner, repo, blob, pr.head.ref, contentBase64, changelogFileName, title, committer);	
+	var contentBase64 = btoa(JSON.stringify(content));
 	
 	const existingFile = await findFile(octo, owner, repo, pr.head.ref, changelogFileName);
-	console.log(`file ${JSON.stringify(existingFile)}`);
+	if (existingFile) {
+		console.log('PR File already exist. Performing update...');
+	}
 	const file = await addFile(octo, owner, repo, existingFile?.data.sha, pr.head.ref, contentBase64, changelogFileName, title, committer);	
-	
-	/*try {
-		const existingFile = await findFile(octo, owner, repo, pr.head.ref, changelogFileName);
-		console.log("Changelog file already exists. Finishing action.");
-		console.log(JSON.stringify(existingFile));
-	} catch (e) {
-		console.log("Changelog file already doesn't exists. I'll create it");
-		const blob = await createBlob(octo, owner, repo, contentBase64);
-		const file = await addFile(octo, owner, repo, blob, pr.head.ref, contentBase64, changelogFileName, title, committer);	
-	}*/
 }
 
 const createBlob = async (octo, organization, repo, content) => {
@@ -76,8 +60,6 @@ const createBlob = async (octo, organization, repo, content) => {
 }
 
 const addFile = async(octo, organization, repo, sha, branch, content, fileName, feature, committer) => {
-	console.log(`blob: ${JSON.stringify(sha)}`);
-//	console.log(`org: ${organization} rep: ${repo} path: ${fileName} branch: ${branch} blob: ${blob.sha}`);
 	const addedFile = await octo.rest.repos.createOrUpdateFileContents({
 		owner: organization,
 		repo,
