@@ -11,11 +11,16 @@ const main = async (workspace) => {
 	}
 
 
-	if(github.context.payload.pull_request) {
-		createPullRequestChangesFile(octokit, github.context, committer)
+	if(github.context.payload.pull_request && validActivityType(github.context.payload.action)) {
+		createPullRequestChangesFile(octokit, github.context, committer);
 	} else {
-		core.setFailed('This action should only be runned on a Pull Request')
+		core.setFailed('This action should only be runned on a Pull Request (opened, edited, labeled, unlabeled)');
 	}
+}
+
+const validActivityType = (type) => {
+	validActivityTypes = ['labeled','unlabeled','opened','edited'];
+	return validActivityTypes.includes(type);
 }
 
 const createPullRequestChangesFile = async (octo, context, committer) => {
@@ -41,7 +46,9 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 	}
 	var contentBase64 = btoa(JSON.stringify(content))
 
-	try {
+	const blob = await createBlob(octo, owner, repo, contentBase64);
+	const file = await addFile(octo, owner, repo, blob, pr.head.ref, contentBase64, changelogFileName, title, committer);	
+	/*try {
 		const existingFile = await findFile(octo, owner, repo, pr.head.ref, changelogFileName);
 		console.log("Changelog file already exists. Finishing action.");
 		console.log(JSON.stringify(existingFile));
@@ -49,7 +56,7 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 		console.log("Changelog file already doesn't exists. I'll create it");
 		const blob = await createBlob(octo, owner, repo, contentBase64);
 		const file = await addFile(octo, owner, repo, blob, pr.head.ref, contentBase64, changelogFileName, title, committer);	
-	}
+	}*/
 }
 
 const createBlob = async (octo, organization, repo, content) => {
