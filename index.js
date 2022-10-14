@@ -84,7 +84,7 @@ const addFile = async(octo, organization, repo, blob, branch, content, fileName,
 		path: fileName,
 		message: `Changelog file for: ${feature}`,
 		content,
-//		sha: blob.sha,
+		sha: blob.sha,
 		branch,
 		committer,
 	});
