@@ -10,17 +10,20 @@ const main = async (workspace) => {
 		email: core.getInput('committer-email'),
 	}
 
-
-	if(github.context.payload.pull_request) {
-		createPullRequestChangesFile(octokit, github.context, committer)
+	if(github.context.payload.pull_request && validActivityType(github.context.payload.action)) {
+		createPullRequestChangesFile(octokit, github.context, committer);
 	} else {
-		core.setFailed('This action should only be runned on a Pull Request')
+		core.setFailed('This action should only be runned on a Pull Request (opened, edited, labeled, unlabeled)');
 	}
 }
 
-const createPullRequestChangesFile = async (octo, context, committer) => {
-	console.log('Here we are in a PR, this is what we have:');
+const validActivityType = (type) => {
+	validActivityTypes = ['labeled','unlabeled','opened','edited'];
+	return validActivityTypes.includes(type);
+}
 
+const createPullRequestChangesFile = async (octo, context, committer) => {
+	
 	const pr = context.payload.pull_request
 	const changelogFileName = `changes/PR-${pr.number}.json`
 	const title = pr.title
@@ -28,9 +31,6 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 	const url = pr.html_url
 	const owner = context.payload.repository.owner.login
 	const repo = context.payload.repository.name
-
-	console.log(JSON.stringify(github, null, 4));
-	console.log(`Owner ${owner}`)
 	
 	const content = {
 		title: pr.title,
@@ -39,16 +39,17 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 		number: pr.number,
 		labels: pr.labels
 	}
-	var contentBase64 = btoa(JSON.stringify(content))
-
+	var contentBase64 = btoa(JSON.stringify(content));
+	var fileSha = '';
 	try {
 		const existingFile = await findFile(octo, owner, repo, pr.head.ref, changelogFileName);
-		console.log("Changelog file already exists. Finishing action.")
+		fileSha = existingFile.data.sha;
+		console.log('PR File already exists. Performing update...');
 	} catch (e) {
-		console.log("Changelog file already doesn't exists. I'll create it")
-		const blob = await createBlob(octo, owner, repo, contentBase64);
-		const file = await addFile(octo, owner, repo, blob, pr.head.ref, contentBase64, changelogFileName, title, committer);	
+		console.log('PR File does not exist. Performing create...');
 	}
+		
+	const file = await addFile(octo, owner, repo, fileSha, pr.head.ref, contentBase64, changelogFileName, title, committer);	
 }
 
 const createBlob = async (octo, organization, repo, content) => {
@@ -62,14 +63,14 @@ const createBlob = async (octo, organization, repo, content) => {
     return blobData.data
 }
 
-const addFile = async(octo, organization, repo, blob, branch, content, fileName, feature, committer) => {
+const addFile = async(octo, organization, repo, sha, branch, content, fileName, feature, committer) => {
 	const addedFile = await octo.rest.repos.createOrUpdateFileContents({
 		owner: organization,
 		repo,
 		path: fileName,
 		message: `Changelog file for: ${feature}`,
 		content,
-		sha: blob.sha,
+		sha,
 		branch,
 		committer,
 	});
