@@ -40,12 +40,16 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 		labels: pr.labels
 	}
 	var contentBase64 = btoa(JSON.stringify(content));
-	
-	const existingFile = await findFile(octo, owner, repo, pr.head.ref, changelogFileName);
-	if (existingFile) {
-		console.log('PR File already exist. Performing update...');
+	var fileSha = '';
+	try {
+		const existingFile = await findFile(octo, owner, repo, pr.head.ref, changelogFileName);
+		fileSha = existingFile.data.sha;
+		console.log('PR File already exists. Performing update...');
+	} catch (e) {
+		console.log('PR File does not exist. Performing create...');
 	}
-	const file = await addFile(octo, owner, repo, existingFile?.data.sha, pr.head.ref, contentBase64, changelogFileName, title, committer);	
+		
+	const file = await addFile(octo, owner, repo, fileSha, pr.head.ref, contentBase64, changelogFileName, title, committer);	
 }
 
 const createBlob = async (octo, organization, repo, content) => {
