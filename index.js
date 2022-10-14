@@ -71,6 +71,7 @@ const createBlob = async (octo, organization, repo, content) => {
 }
 
 const addFile = async(octo, organization, repo, blob, branch, content, fileName, feature, committer) => {
+	console.log(`org: ${organization} rep: ${repo} path: ${fileName}`);
 	const addedFile = await octo.rest.repos.createOrUpdateFileContents({
 		owner: organization,
 		repo,
