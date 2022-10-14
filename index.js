@@ -46,8 +46,11 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 	}
 	var contentBase64 = btoa(JSON.stringify(content))
 
-	const blob = await createBlob(octo, owner, repo, contentBase64);
-	const file = await addFile(octo, owner, repo, blob, pr.head.ref, contentBase64, changelogFileName, title, committer);	
+	//const blob = await createBlob(octo, owner, repo, contentBase64);
+	//const file = await addFile(octo, owner, repo, blob, pr.head.ref, contentBase64, changelogFileName, title, committer);	
+	
+	const file = await addFile(octo, owner, repo, 'delete', pr.head.ref, contentBase64, changelogFileName, title, committer);	
+	
 	/*try {
 		const existingFile = await findFile(octo, owner, repo, pr.head.ref, changelogFileName);
 		console.log("Changelog file already exists. Finishing action.");
@@ -72,14 +75,14 @@ const createBlob = async (octo, organization, repo, content) => {
 
 const addFile = async(octo, organization, repo, blob, branch, content, fileName, feature, committer) => {
 	console.log(`blob: ${JSON.stringify(blob)}`);
-	console.log(`org: ${organization} rep: ${repo} path: ${fileName} branch: ${branch} blob: ${blob.sha}`);
+//	console.log(`org: ${organization} rep: ${repo} path: ${fileName} branch: ${branch} blob: ${blob.sha}`);
 	const addedFile = await octo.rest.repos.createOrUpdateFileContents({
 		owner: organization,
 		repo,
 		path: fileName,
 		message: `Changelog file for: ${feature}`,
 		content,
-		sha: blob.sha,
+//		sha: blob.sha,
 		branch,
 		committer,
 	});
