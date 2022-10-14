@@ -34,8 +34,8 @@ const createPullRequestChangesFile = async (octo, context, committer) => {
 	const owner = context.payload.repository.owner.login
 	const repo = context.payload.repository.name
 
-	console.log(JSON.stringify(github, null, 4));
-	console.log(`Owner ${owner}`)
+//	console.log(JSON.stringify(github, null, 4));
+//	console.log(`Owner ${owner}`)
 	
 	const content = {
 		title: pr.title,
@@ -71,7 +71,8 @@ const createBlob = async (octo, organization, repo, content) => {
 }
 
 const addFile = async(octo, organization, repo, blob, branch, content, fileName, feature, committer) => {
-	console.log(`org: ${organization} rep: ${repo} path: ${fileName} branch: ${branch} blob: ${blob}`);
+	console.log(`blob: ${JSON.stringify(github)}`);
+	console.log(`org: ${organization} rep: ${repo} path: ${fileName} branch: ${branch} blob: ${blob.sha}`);
 	const addedFile = await octo.rest.repos.createOrUpdateFileContents({
 		owner: organization,
 		repo,
